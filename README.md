@@ -1,50 +1,16 @@
-# React + TypeScript + Vite
+# MapleStory Path Finder
+It's a web app for finding paths between two maps in MapleStory.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Why?
+I recently started playing again for the nostalgia (Artale) and found myself hopping between different guides to understand how to get to certain places within the game.
+Also because I thought it might be fun 😁
 
-Currently, two official plugins are available:
+## How to use
+Simply choose a starting and end map, click on search and hope it finds a connection between the portals.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Notes
+- Due to some API constraints, some maps cannot be connected. It's best to just search for maps in the same area (Island, World).
+- This website is just a hobby project, I can't promise to fix every issue found, but feel free to open PRs.
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+## API
+Thanks to [MapleStory.io](https://maplestory.io) for the API.
