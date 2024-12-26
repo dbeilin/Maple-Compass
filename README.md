@@ -2,8 +2,8 @@
 It's a web app for finding paths between two maps in MapleStory.
 
 ## Why?
-I recently started playing again for the nostalgia (Artale) and found myself hopping between different guides to understand how to get to certain places within the game.
-Also because I thought it might be fun 😁
+I recently started playing again for the nostalgia (Artale). I was searching for a tool such as this to help me remember to how get to certain maps.
+Also be cause it's fun 😁
 
 ## How to use
 Simply choose a starting and end map, click on search and hope it finds a connection between the portals.
