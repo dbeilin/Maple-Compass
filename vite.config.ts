@@ -5,12 +5,9 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-    open: false,
-    cors: true
   },
   preview: {
-    port: 3000,
+    port: 3001,
     host: true,
-    cors: true
   }
 })
