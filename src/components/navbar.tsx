@@ -80,6 +80,7 @@ export function Navbar() {
                 <li>• Cannot find paths between different areas/worlds</li>
                 <li>• You may encounter occasional bugs as this is a hobby project 😅</li>
                 <li>• Contributions and improvements are welcome via PR</li>
+                <li>• The API sometimes returns bad/wrong data, so sorry for any "path not found" issues. The tool is only as smart as the data it gets 😅</li>
               </ul>
             </div>
           </div>
