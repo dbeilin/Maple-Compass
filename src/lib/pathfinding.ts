@@ -1,4 +1,4 @@
-import type { MapDetails, MapInfo, PathStep } from '../types/map'
+import type { MapInfo, PathStep } from '../types/map'
 import { getMapDetails } from './api'
 
 interface QueueItem {
@@ -22,7 +22,6 @@ export async function findPath(
   endMap: MapInfo
 ): Promise<PathStep[]> {
   const queue: QueueItem[] = []
-  const visited = new Set<number>([startMap.id])
   
   // Get initial map details
   const startMapDetails = await getMapDetails(startMap.id)
