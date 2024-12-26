@@ -23,4 +23,4 @@ Simply choose a starting and end map, click on search and hope it finds a connec
 2. Access on http://localhost:3001/
 
 ## API
-[MapleStory.io](https://maplestory.io) was use for the API.
+[MapleStory.io](https://maplestory.io) was used for the API.
