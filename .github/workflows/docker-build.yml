@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '**.md'
+      - '.github/**'
+      - '.gitignore'
+      - '.dockerignore'
+      - '.vscode/**'
 
 jobs:
   build-and-push:
