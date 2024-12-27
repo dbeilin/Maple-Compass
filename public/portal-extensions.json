@@ -1,9 +1,11 @@
 {
   "101000300": {
     "fromMapId": 101000300,
+    "name": "Ellinia Station",
     "connections": [
       {
         "toMapId": 200000100,
+        "toName": "Orbis: Station <From Ellinia>",
         "portalName": "portal00",
         "x": 0,
         "y": 0
