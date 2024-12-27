@@ -1,0 +1,13 @@
+{
+  "101000300": {
+    "fromMapId": 101000300,
+    "connections": [
+      {
+        "toMapId": 200000100,
+        "portalName": "portal00",
+        "x": 0,
+        "y": 0
+      }
+    ]
+  }
+}

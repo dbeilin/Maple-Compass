@@ -1,18 +1,55 @@
 import type { MapGraph, MapInfo, PathStep } from '../types/map'
+import type { PortalExtensions } from '../types/portal-extensions'
 
 let mapGraph: MapGraph | null = null
+let portalExtensions: PortalExtensions | null = null
+
+function mergePortalExtensions(graph: MapGraph, extensions: PortalExtensions): MapGraph {
+  const mergedGraph = { ...graph }
+  
+  Object.entries(extensions).forEach(([mapId, extension]) => {
+    const numericMapId = parseInt(mapId)
+    if (mergedGraph[numericMapId]) {
+      mergedGraph[numericMapId] = {
+        ...mergedGraph[numericMapId],
+        connections: [
+          ...mergedGraph[numericMapId].connections,
+          ...extension.connections
+        ]
+      }
+    }
+  })
+  
+  return mergedGraph
+}
 
 export async function initializePathfinding() {
   if (!mapGraph) {
     try {
-      console.log('Loading map graph data...')
-      const response = await fetch('/map-graph.json')
-      if (!response.ok) {
-        throw new Error(`Failed to load map graph data: ${response.status} ${response.statusText}`)
+      console.log('Loading map data...')
+      const [graphResponse, extensionsResponse] = await Promise.all([
+        fetch('/map-graph.json'),
+        fetch('/portal-extensions.json')
+      ])
+
+      if (!graphResponse.ok) {
+        throw new Error(`Failed to load map graph data: ${graphResponse.status} ${graphResponse.statusText}`)
       }
-      mapGraph = await response.json()
+
+      if (!extensionsResponse.ok) {
+        throw new Error(`Failed to load portal extensions: ${extensionsResponse.status} ${extensionsResponse.statusText}`)
+      }
+
+      const baseGraph = await graphResponse.json()
+      const extensions = await extensionsResponse.json() as PortalExtensions
+      portalExtensions = extensions
+      
+      // Merge the extensions with the base graph
+      mapGraph = mergePortalExtensions(baseGraph, extensions)
+      
       const nodeCount = mapGraph ? Object.keys(mapGraph).length : 0
-      console.log(`Loaded map graph with ${nodeCount} nodes`)
+      const extensionCount = portalExtensions ? Object.keys(portalExtensions).length : 0
+      console.log(`Loaded map graph with ${nodeCount} nodes and ${extensionCount} extensions`)
     } catch (error) {
       console.error('Error loading map graph:', error)
       throw error
