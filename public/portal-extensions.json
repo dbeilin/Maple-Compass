@@ -8,7 +8,47 @@
         "toName": "Orbis: Station <From Ellinia>",
         "portalName": "portal00",
         "x": 0,
-        "y": 0
+        "y": 0,
+        "bidirectional": false,
+        "via": [
+          {
+            "mapId": 200090010,
+            "name": "To Orbis",
+            "portalName": "portal00",
+            "x": 0,
+            "y": 0
+          }
+        ]
+      }
+    ]
+  },
+  "200000100": {
+    "fromMapId": 200000100,
+    "name": "Orbis Station Enterence",
+    "connections": [
+      {
+        "toMapId": 101000300,
+        "toName": "Ellinia Station",
+        "portalName": "portal00",
+        "x": 0,
+        "y": 0,
+        "bidirectional": false,
+        "via": [
+          {
+            "mapId": 200000112,
+            "name": "Before Takeoff <To Ellinia>",
+            "portalName": "portal00",
+            "x": 0,
+            "y": 0
+          },
+          {
+            "mapId": 200090000,
+            "name": "During the Ride",
+            "portalName": "portal00",
+            "x": 0,
+            "y": 0
+          }
+        ]
       }
     ]
   }
