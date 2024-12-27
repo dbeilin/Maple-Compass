@@ -65,3 +65,20 @@ export interface PathStep {
   portal: Portal
   direction: string
 }
+
+// Optimized types for graph-based pathfinding
+export interface MapNode {
+  id: number
+  name: string
+  streetName: string
+  connections: Array<{
+    toMapId: number
+    portalName: string
+    x: number
+    y: number
+  }>
+}
+
+export interface MapGraph {
+  [mapId: number]: MapNode
+}
