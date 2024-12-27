@@ -1,10 +1,24 @@
-import type { MapInfo, PathStep } from '../types/map'
-import { getMapDetails } from './api'
+import type { MapGraph, MapInfo, MapNode, PathStep } from '../types/map'
 
-interface QueueItem {
-  mapId: number
-  path: PathStep[]
-  visited: Set<number>
+let mapGraph: MapGraph | null = null
+
+export async function initializePathfinding() {
+  if (!mapGraph) {
+    try {
+      console.log('Loading map graph data...')
+      const response = await fetch('/map-graph.json')
+      if (!response.ok) {
+        throw new Error(`Failed to load map graph data: ${response.status} ${response.statusText}`)
+      }
+      mapGraph = await response.json()
+      const nodeCount = mapGraph ? Object.keys(mapGraph).length : 0
+      console.log(`Loaded map graph with ${nodeCount} nodes`)
+    } catch (error) {
+      console.error('Error loading map graph:', error)
+      throw error
+    }
+  }
+  return mapGraph
 }
 
 function getDirection(fromPortal: { x: number; y: number }, toPortal: { x: number; y: number }): string {
@@ -17,35 +31,80 @@ function getDirection(fromPortal: { x: number; y: number }, toPortal: { x: numbe
   return dy > 0 ? 'down' : 'up'
 }
 
+interface QueueItem {
+  mapId: number
+  path: PathStep[]
+  visited: Set<number>
+}
+
 export async function findPath(
   startMap: MapInfo,
   endMap: MapInfo
 ): Promise<PathStep[]> {
+  if (!mapGraph) {
+    await initializePathfinding()
+  }
+
+  if (!mapGraph) {
+    throw new Error('Map graph not initialized')
+  }
+
+  console.log(`Finding path from ${startMap.name} (${startMap.id}) to ${endMap.name} (${endMap.id})`)
+
   const queue: QueueItem[] = []
+  const startNode = mapGraph[startMap.id]
+  const endNode = mapGraph[endMap.id]
   
-  // Get initial map details
-  const startMapDetails = await getMapDetails(startMap.id)
-  
-  // Initialize queue with valid portals from start map
-  for (const portal of startMapDetails.portals) {
-    if (!portal.toMapName || portal.portalName === 'sp' || portal.portalName === 'tp') {
-      continue
-    }
+  if (!startNode) {
+    throw new Error(`Start map ${startMap.name} (${startMap.id}) not found in graph`)
+  }
+
+  if (!endNode) {
+    throw new Error(`End map ${endMap.name} (${endMap.id}) not found in graph`)
+  }
+
+  if (startMap.id === endMap.id) {
+    console.log('Start and end maps are the same')
+    return []
+  }
+
+  // Initialize queue with connections from start map
+  for (const connection of startNode.connections) {
+    const nextNode = mapGraph[connection.toMapId]
+    if (!nextNode) continue
 
     queue.push({
-      mapId: portal.toMap,
+      mapId: connection.toMapId,
       path: [
         {
           currentMap: startMap,
-          nextMap: portal.toMapName,
-          portal,
+          nextMap: {
+            id: nextNode.id,
+            name: nextNode.name,
+            streetName: nextNode.streetName
+          },
+          portal: {
+            portalName: connection.portalName,
+            toName: '', // Not needed for pathfinding
+            type: 0, // Not needed for pathfinding
+            toMap: connection.toMapId,
+            x: connection.x,
+            y: connection.y,
+            isStarForcePortal: false,
+            linkToMap: '',
+            toMapName: {
+              id: nextNode.id,
+              name: nextNode.name,
+              streetName: nextNode.streetName
+            }
+          },
           direction: getDirection(
             { x: 0, y: 0 }, // Assuming starting position
-            { x: portal.x, y: portal.y }
+            { x: connection.x, y: connection.y }
           ),
         },
       ],
-      visited: new Set([startMap.id, portal.toMap]),
+      visited: new Set([startMap.id, connection.toMapId]),
     })
   }
 
@@ -58,45 +117,54 @@ export async function findPath(
       return path
     }
 
-    try {
-      const mapDetails = await getMapDetails(mapId)
+    const currentNode = mapGraph[mapId]
+    if (!currentNode) continue
 
-      // Add all valid portals to queue
-      for (const portal of (mapDetails.portals || [])) {
-        // Skip invalid portals
-        if (!portal) continue;
-        
-        // Skip special portals and already visited maps
-        if (
-          !portal.toMapName ||
-          !portal.toMap ||
-          portal.portalName === 'sp' ||
-          portal.portalName === 'tp' ||
-          visitedInPath.has(portal.toMap)
-        ) {
-          continue
-        }
+    // Add all valid connections to queue
+    for (const connection of currentNode.connections) {
+      if (visitedInPath.has(connection.toMapId)) continue
 
-        const newPath = [...path]
-        newPath.push({
-          currentMap: path[path.length - 1].nextMap,
-          nextMap: portal.toMapName,
-          portal,
-          direction: getDirection(
-            { x: 0, y: 0 }, // Using center as reference
-            { x: portal.x, y: portal.y }
-          ),
-        })
+      const nextNode = mapGraph[connection.toMapId]
+      if (!nextNode) continue
 
-        queue.push({
-          mapId: portal.toMap,
-          path: newPath,
-          visited: new Set([...visitedInPath, portal.toMap]),
-        })
-      }
-    } catch (error) {
-      console.error(`Failed to get details for map ${mapId}:`, error)
-      continue
+      const newPath = [...path]
+      newPath.push({
+        currentMap: {
+          id: currentNode.id,
+          name: currentNode.name,
+          streetName: currentNode.streetName
+        },
+        nextMap: {
+          id: nextNode.id,
+          name: nextNode.name,
+          streetName: nextNode.streetName
+        },
+        portal: {
+          portalName: connection.portalName,
+          toName: '',
+          type: 0,
+          toMap: connection.toMapId,
+          x: connection.x,
+          y: connection.y,
+          isStarForcePortal: false,
+          linkToMap: '',
+          toMapName: {
+            id: nextNode.id,
+            name: nextNode.name,
+            streetName: nextNode.streetName
+          }
+        },
+        direction: getDirection(
+          { x: 0, y: 0 },
+          { x: connection.x, y: connection.y }
+        ),
+      })
+
+      queue.push({
+        mapId: connection.toMapId,
+        path: newPath,
+        visited: new Set([...visitedInPath, connection.toMapId]),
+      })
     }
   }
 
