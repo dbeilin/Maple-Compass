@@ -1,4 +1,4 @@
-import type { MapGraph, MapInfo, MapNode, PathStep } from '../types/map'
+import type { MapGraph, MapInfo, PathStep } from '../types/map'
 
 let mapGraph: MapGraph | null = null
 
