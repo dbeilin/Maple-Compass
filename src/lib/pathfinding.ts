@@ -112,6 +112,11 @@ function getDirection(fromPortal: { x: number; y: number }, toPortal: { x: numbe
   const dx = toPortal.x - fromPortal.x
   const dy = toPortal.y - fromPortal.y
 
+  // If both dx and dy are 0, no direction is specified
+  if (dx === 0 && dy === 0) {
+    return ''
+  }
+
   if (Math.abs(dx) > Math.abs(dy)) {
     return dx > 0 ? 'right' : 'left'
   }
