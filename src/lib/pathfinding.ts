@@ -1,5 +1,5 @@
 import type { MapGraph, MapInfo, PathStep } from '../types/map'
-import type { PortalExtensionsConfig, PortalConnection } from '../types/portal-extensions'
+import type { PortalExtensionsConfig, PortalConnection, ViaMap } from '../types/portal-extensions'
 
 let mapGraph: MapGraph | null = null
 let portalExtensions: PortalExtensionsConfig | null = null
@@ -24,7 +24,7 @@ function mergePortalExtensions(graph: MapGraph, config: PortalExtensionsConfig):
         let previousMapId = numericMapId
         
         // Create nodes and connections for each intermediate map
-        conn.via.forEach((viaMap: { mapId: number; name: string; portalName: string; x: number; y: number }) => {
+        conn.via.forEach((viaMap: ViaMap) => {
           if (!mergedGraph[viaMap.mapId]) {
             mergedGraph[viaMap.mapId] = {
               id: viaMap.mapId,
@@ -44,16 +44,6 @@ function mergePortalExtensions(graph: MapGraph, config: PortalExtensionsConfig):
             })
           }
 
-          // If bidirectional, add reverse connection
-          if (conn.bidirectional && !mergedGraph[viaMap.mapId].connections.some(c => c.toMapId === previousMapId)) {
-            mergedGraph[viaMap.mapId].connections.push({
-              toMapId: previousMapId,
-              portalName: viaMap.portalName,
-              x: viaMap.x,
-              y: viaMap.y
-            })
-          }
-
           previousMapId = viaMap.mapId
         })
 
@@ -66,27 +56,6 @@ function mergePortalExtensions(graph: MapGraph, config: PortalExtensionsConfig):
             y: conn.y
           })
         }
-
-        // If bidirectional, add reverse connection from destination to last intermediate
-        if (conn.bidirectional) {
-          if (!mergedGraph[conn.toMapId]) {
-            mergedGraph[conn.toMapId] = {
-              id: conn.toMapId,
-              name: conn.toName,
-              streetName: '',
-              connections: []
-            }
-          }
-
-          if (!mergedGraph[conn.toMapId].connections.some(c => c.toMapId === previousMapId)) {
-            mergedGraph[conn.toMapId].connections.push({
-              toMapId: previousMapId,
-              portalName: conn.portalName,
-              x: conn.x,
-              y: conn.y
-            })
-          }
-        }
       } else {
         // Direct connection without intermediates
         if (!mergedGraph[numericMapId].connections.some(c => c.toMapId === conn.toMapId)) {
@@ -96,27 +65,6 @@ function mergePortalExtensions(graph: MapGraph, config: PortalExtensionsConfig):
             x: conn.x,
             y: conn.y
           })
-        }
-
-        // Add reverse connection if bidirectional
-        if (conn.bidirectional) {
-          if (!mergedGraph[conn.toMapId]) {
-            mergedGraph[conn.toMapId] = {
-              id: conn.toMapId,
-              name: conn.toName,
-              streetName: '',
-              connections: []
-            }
-          }
-
-          if (!mergedGraph[conn.toMapId].connections.some(c => c.toMapId === numericMapId)) {
-            mergedGraph[conn.toMapId].connections.push({
-              toMapId: numericMapId,
-              portalName: conn.portalName,
-              x: conn.x,
-              y: conn.y
-            })
-          }
         }
       }
     })

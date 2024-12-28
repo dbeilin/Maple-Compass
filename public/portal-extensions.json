@@ -9,7 +9,6 @@
         "portalName": "portal00",
         "x": 0,
         "y": 0,
-        "bidirectional": false,
         "via": [
           {
             "mapId": 200090010,
@@ -32,7 +31,6 @@
         "portalName": "portal00",
         "x": 0,
         "y": 0,
-        "bidirectional": false,
         "via": [
           {
             "mapId": 200000112,
@@ -44,6 +42,36 @@
           {
             "mapId": 200090000,
             "name": "During the Ride",
+            "portalName": "portal00",
+            "x": 0,
+            "y": 0
+          }
+        ]
+      },
+      {
+        "toMapId": 220000000,
+        "toName": "Ludibrium",
+        "portalName": "portal00",
+        "x": 0,
+        "y": 0,
+        "via": [
+          {
+            "mapId": 200000121,
+            "name": "Station<Ludibrium>",
+            "portalName": "portal00",
+            "x": 0,
+            "y": 0
+          },
+          {
+            "mapId": 200000122,
+            "name": "Before the Departure <Ludibrium>",
+            "portalName": "portal00",
+            "x": 0,
+            "y": 0
+          },
+          {
+            "mapId": 200090100,
+            "name": "On a Voyage",
             "portalName": "portal00",
             "x": 0,
             "y": 0

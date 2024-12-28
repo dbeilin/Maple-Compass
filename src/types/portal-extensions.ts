@@ -1,17 +1,18 @@
+export interface ViaMap {
+  mapId: number
+  name: string
+  portalName: string
+  x: number
+  y: number
+}
+
 export interface PortalConnection {
   toMapId: number
   toName: string
   portalName: string
   x: number
   y: number
-  bidirectional: boolean
-  via?: Array<{
-    mapId: number
-    name: string
-    portalName: string
-    x: number
-    y: number
-  }>
+  via?: ViaMap[]
 }
 
 export interface PortalExtension {
