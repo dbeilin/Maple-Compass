@@ -11,4 +11,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Map pathfinding functionality
 - Portal extensions support for inter-city travel
 
-[1.0.0]: https://github.com/dbeilin/pathfinder/releases/tag/v1.0.0
+[1.0.0]: https://github.com/dbeilin/MapleStory-Path-Finder/releases/tag/v1.0.0
