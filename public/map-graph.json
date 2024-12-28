@@ -11890,6 +11890,19 @@
       }
     ]
   },
+  "200000001": {
+    "id": 200000001,
+    "name": "Orbis Weapon Store",
+    "streetName": "Orbis",
+    "connections": [
+      {
+        "toMapId": 200000000,
+        "portalName": "out00",
+        "x": -1,
+        "y": 0
+      }
+    ]
+  },
   "200000002": {
     "id": 200000002,
     "name": "Orbis Department Store",
