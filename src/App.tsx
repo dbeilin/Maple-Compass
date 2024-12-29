@@ -1,12 +1,13 @@
-import { useState } from 'react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useState, useEffect } from 'react'
+import { useQueryState, parseAsInteger } from 'nuqs'
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import { MapSearch } from './components/map-search'
 import { MapModal } from './components/map-modal'
 import { Navbar } from './components/navbar'
 import { Footer } from './components/footer'
 import { findPath } from './lib/pathfinding'
 import type { MapInfo, PathStep } from './types/map'
-import { getMapImageUrl, getMapIconUrl } from './lib/api'
+import { getMapImageUrl, getMapIconUrl, getAllMaps } from './lib/api'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,8 +19,53 @@ const queryClient = new QueryClient({
 })
 
 function PathfinderApp() {
+  const [sourceMapId, setSourceMapIdRaw] = useQueryState(
+    'from',
+    parseAsInteger.withDefault(-1)
+  )
+  
+  const [targetMapId, setTargetMapIdRaw] = useQueryState(
+    'to',
+    parseAsInteger.withDefault(-1)
+  )
+
+  const setSourceMapId = (value: number | null) => 
+    setSourceMapIdRaw(value === null ? -1 : value)
+  
+  const setTargetMapId = (value: number | null) => 
+    setTargetMapIdRaw(value === null ? -1 : value)
+
+  const effectiveSourceMapId = sourceMapId === -1 ? null : sourceMapId
+  const effectiveTargetMapId = targetMapId === -1 ? null : targetMapId
+
   const [sourceMap, setSourceMap] = useState<MapInfo | null>(null)
   const [targetMap, setTargetMap] = useState<MapInfo | null>(null)
+
+  // Fetch all maps once and cache them
+  const { data: maps } = useQuery({
+    queryKey: ['maps'],
+    queryFn: getAllMaps,
+    staleTime: Infinity // Cache the maps permanently
+  })
+
+  // Update maps when IDs change or when maps data is loaded
+  useEffect(() => {
+    if (maps) {
+      if (effectiveSourceMapId !== null) {
+        const map = maps.find((m: MapInfo) => m.id === effectiveSourceMapId)
+        if (map) setSourceMap(map)
+      } else {
+        setSourceMap(null)
+      }
+
+      if (effectiveTargetMapId !== null) {
+        const map = maps.find((m: MapInfo) => m.id === effectiveTargetMapId)
+        if (map) setTargetMap(map)
+      } else {
+        setTargetMap(null)
+      }
+    }
+  }, [sourceMapId, targetMapId, maps])
   const [path, setPath] = useState<PathStep[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -44,9 +90,12 @@ function PathfinderApp() {
     }
   }
 
-  function handleSwapMaps() {
-    setSourceMap(targetMap)
-    setTargetMap(sourceMap)
+  async function handleSwapMaps() {
+    const tempSourceId = effectiveSourceMapId
+    await Promise.all([
+      setSourceMapId(effectiveTargetMapId),
+      setTargetMapId(tempSourceId)
+    ])
     setPath(null)
     setError(null)
   }
@@ -62,7 +111,7 @@ function PathfinderApp() {
             <div className="space-y-2">
               <MapSearch
                 label="Starting Map"
-                onSelect={setSourceMap}
+                onSelect={(map) => setSourceMapId(map.id)}
                 placeholder="Where are you now?"
               />
               {sourceMap && (
@@ -94,7 +143,7 @@ function PathfinderApp() {
             <div className="space-y-2">
               <MapSearch
                 label="Target Map"
-                onSelect={setTargetMap}
+                onSelect={(map) => setTargetMapId(map.id)}
                 placeholder="Where do you want to go?"
               />
               {targetMap && (
