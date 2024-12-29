@@ -20,9 +20,14 @@ export function Navbar() {
                   className="w-full h-full object-contain"
                 />
               </div>
-              <h1 className="text-xl font-bold text-primary">
-                MapleStory Path Finder
-              </h1>
+              <div className="flex flex-col">
+                <h1 className="text-xl font-bold text-primary">
+                  Maple Compass
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  Navigate MapleStory with ease
+                </p>
+              </div>
             </div>
             
             <button
