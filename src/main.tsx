@@ -1,10 +1,10 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App'
 import './styles/globals.css'
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import { Analytics } from "@vercel/analytics/react"
 import { initializePathfinding } from './lib/pathfinding'
+import { Router } from './router'
 
 // Initialize pathfinding system
 initializePathfinding().catch(error => {
@@ -24,7 +24,7 @@ initializePathfinding().catch(error => {
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <>
-      <App />
+      <Router />
       <SpeedInsights />
       <Analytics />
     </>
