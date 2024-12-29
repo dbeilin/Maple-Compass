@@ -9,6 +9,10 @@
     ["@semantic-release/git", {
       "assets": ["package.json", "package-lock.json", "CHANGELOG.md"],
       "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+    }],
+    ["@semantic-release/exec", {
+      "prepareCmd": "git checkout -b release-${nextRelease.version}",
+      "publishCmd": "gh pr create --title 'chore(release): ${nextRelease.version}' --body '${nextRelease.notes}' --base main --head release-${nextRelease.version} --label release"
     }]
   ]
 }
