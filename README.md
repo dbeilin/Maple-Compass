@@ -1,4 +1,4 @@
-# MapleStory Path Finder 🍁
+# Maple Compass 🍁
 It's a web app for finding paths between two maps in MapleStory.
 
 ## Why? 

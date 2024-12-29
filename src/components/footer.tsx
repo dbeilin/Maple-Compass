@@ -8,7 +8,7 @@ export function Footer() {
           </div>
           <div className="flex items-center gap-4">
             <a
-              href="https://github.com/dbeilin/MapleStory-Path-Finder"
+              href="https://github.com/dbeilin/maple-compass"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 hover:text-foreground transition-colors"
