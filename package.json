@@ -2,6 +2,10 @@
   "name": "pathfinder",
   "private": true,
   "version": "1.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dbeilin/Maple-Compass.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
