@@ -11944,6 +11944,12 @@
         "portalName": "portal00",
         "x": 800,
         "y": 0
+      },
+      {
+        "toMapId": 200000140,
+        "portalName": "portal00",
+        "x": 800,
+        "y": 0
       }
     ]
   },
@@ -12110,6 +12116,12 @@
         "portalName": "west00",
         "x": -420,
         "y": 139
+      },
+      {
+        "toMapId": 200090300,
+        "portalName": "portal00",
+        "x": 0,
+        "y": 0
       }
     ]
   },
@@ -16728,6 +16740,12 @@
         "portalName": "h007",
         "x": 388,
         "y": -1740
+      },
+      {
+        "toMapId": 250000000,
+        "portalName": "portal00",
+        "x": 0,
+        "y": 0
       }
     ]
   },
