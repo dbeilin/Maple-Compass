@@ -12,7 +12,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate-map-data": "tsx src/scripts/fetch-map-data.ts"
+    "generate-map-data": "tsx src/scripts/fetch-map-data.ts",
+    "add-connection": "tsx scripts/add-map-connection.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.62.10",

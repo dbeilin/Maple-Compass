@@ -2126,6 +2126,12 @@
         "portalName": "out00",
         "x": -221,
         "y": 82
+      },
+      {
+        "toMapId": 200090010,
+        "portalName": "portal00",
+        "x": 0,
+        "y": 0
       }
     ]
   },
@@ -11926,6 +11932,18 @@
         "portalName": "west00",
         "x": -1557,
         "y": 82
+      },
+      {
+        "toMapId": 200000112,
+        "portalName": "portal00",
+        "x": 800,
+        "y": 0
+      },
+      {
+        "toMapId": 200000121,
+        "portalName": "portal00",
+        "x": 800,
+        "y": 0
       }
     ]
   },
@@ -11971,6 +11989,12 @@
         "portalName": "h002",
         "x": -18,
         "y": -455
+      },
+      {
+        "toMapId": 200090000,
+        "portalName": "portal00",
+        "x": 0,
+        "y": -1
       }
     ]
   },
@@ -11984,6 +12008,12 @@
         "portalName": "west00",
         "x": -420,
         "y": 139
+      },
+      {
+        "toMapId": 200000122,
+        "portalName": "portal00",
+        "x": 0,
+        "y": -600
       }
     ]
   },
@@ -11991,7 +12021,14 @@
     "id": 200000122,
     "name": "Before the Departure <Ludibrium>",
     "streetName": "Orbis",
-    "connections": []
+    "connections": [
+      {
+        "toMapId": 200090100,
+        "portalName": "portal00",
+        "x": 0,
+        "y": 0
+      }
+    ]
   },
   "200000130": {
     "id": 200000130,
@@ -13135,6 +13172,12 @@
         "portalName": "h002_1",
         "x": -93,
         "y": -617
+      },
+      {
+        "toMapId": 101000300,
+        "portalName": "portal00",
+        "x": 0,
+        "y": 0
       }
     ]
   },
@@ -13185,6 +13228,12 @@
         "portalName": "h002_1",
         "x": -13,
         "y": -625
+      },
+      {
+        "toMapId": 200000100,
+        "portalName": "portal00",
+        "x": 0,
+        "y": 0
       }
     ]
   },
@@ -16574,7 +16623,14 @@
     "id": 200090100,
     "name": "Ludibrium",
     "streetName": "On a Voyage",
-    "connections": []
+    "connections": [
+      {
+        "toMapId": 220000000,
+        "portalName": "portal00",
+        "x": 0,
+        "y": 0
+      }
+    ]
   },
   "200090110": {
     "id": 200090110,
