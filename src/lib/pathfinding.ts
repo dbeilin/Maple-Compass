@@ -1,105 +1,20 @@
 import type { MapGraph, MapInfo, PathStep } from '../types/map'
-import type { PortalExtensionsConfig, PortalConnection, ViaMap } from '../types/portal-extensions'
 
 let mapGraph: MapGraph | null = null
-let portalExtensions: PortalExtensionsConfig | null = null
-
-function mergePortalExtensions(graph: MapGraph, config: PortalExtensionsConfig): MapGraph {
-  const mergedGraph = { ...graph }
-  
-  Object.entries(config).forEach(([mapId, extension]) => {
-    const numericMapId = parseInt(mapId)
-    if (!mergedGraph[numericMapId]) {
-      mergedGraph[numericMapId] = {
-        id: numericMapId,
-        name: extension.name,
-        streetName: '',
-        connections: []
-      }
-    }
-
-    extension.connections.forEach((conn: PortalConnection) => {
-      // Add intermediate maps if they exist
-      if (conn.via) {
-        let previousMapId = numericMapId
-        
-        // Create nodes and connections for each intermediate map
-        conn.via.forEach((viaMap: ViaMap) => {
-          if (!mergedGraph[viaMap.mapId]) {
-            mergedGraph[viaMap.mapId] = {
-              id: viaMap.mapId,
-              name: viaMap.name,
-              streetName: '',
-              connections: []
-            }
-          }
-
-          // Connect previous map to this intermediate
-          if (!mergedGraph[previousMapId].connections.some(c => c.toMapId === viaMap.mapId)) {
-            mergedGraph[previousMapId].connections.push({
-              toMapId: viaMap.mapId,
-              portalName: viaMap.portalName,
-              x: viaMap.x,
-              y: viaMap.y
-            })
-          }
-
-          previousMapId = viaMap.mapId
-        })
-
-        // Connect last intermediate to destination
-        if (!mergedGraph[previousMapId].connections.some(c => c.toMapId === conn.toMapId)) {
-          mergedGraph[previousMapId].connections.push({
-            toMapId: conn.toMapId,
-            portalName: conn.portalName,
-            x: conn.x,
-            y: conn.y
-          })
-        }
-      } else {
-        // Direct connection without intermediates
-        if (!mergedGraph[numericMapId].connections.some(c => c.toMapId === conn.toMapId)) {
-          mergedGraph[numericMapId].connections.push({
-            toMapId: conn.toMapId,
-            portalName: conn.portalName,
-            x: conn.x,
-            y: conn.y
-          })
-        }
-      }
-    })
-  })
-  
-  return mergedGraph
-}
 
 export async function initializePathfinding() {
   if (!mapGraph) {
     try {
       console.log('Loading map data...')
-      const [graphResponse, extensionsResponse] = await Promise.all([
-        fetch('/map-graph.json'),
-        fetch('/portal-extensions.json')
-      ])
+      const graphResponse = await fetch('/map-graph.json')
 
       if (!graphResponse.ok) {
         throw new Error(`Failed to load map graph data: ${graphResponse.status} ${graphResponse.statusText}`)
       }
 
-      if (!extensionsResponse.ok) {
-        throw new Error(`Failed to load portal extensions: ${extensionsResponse.status} ${extensionsResponse.statusText}`)
-      }
-
-      const baseGraph = await graphResponse.json()
-      const config = await extensionsResponse.json() as PortalExtensionsConfig
-      portalExtensions = config
-      
-      // Merge the extensions with the base graph
-      mapGraph = mergePortalExtensions(baseGraph, config)
-      
+      mapGraph = await graphResponse.json()
       const nodeCount = mapGraph ? Object.keys(mapGraph).length : 0
-      const extensionCount = portalExtensions ? Object.keys(portalExtensions).length : 0
-      console.log(`Loaded map graph with ${nodeCount} nodes and ${extensionCount} extensions`)
+      console.log(`Loaded map graph with ${nodeCount} nodes`)
     } catch (error) {
       console.error('Error loading map graph:', error)
       throw error
