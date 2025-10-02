@@ -3,8 +3,11 @@ import { useQueryState, parseAsInteger } from 'nuqs'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import { MapSearch } from './components/map-search'
 import { MapModal } from './components/map-modal'
-import { Navbar } from './components/navbar'
+import { Navbar } from './components/navbar-new'
 import { Footer } from './components/footer'
+import { EmptyState } from './components/empty-state'
+import { LoadingSpinner } from './components/loading-spinner'
+import { PathSummary } from './components/path-summary'
 import { findPath } from './lib/pathfinding'
 import type { MapInfo, PathStep } from './types/map'
 import { getMapImageUrl, getMapIconUrl, getAllMaps } from './lib/api'
@@ -100,135 +103,219 @@ function PathfinderApp() {
     setError(null)
   }
 
+  function handleClearPath() {
+    setPath(null)
+    setError(null)
+  }
+
+  function handleCopyPath() {
+    if (!path) return
+
+    const pathText = path.map((step, index) =>
+      `${index + 1}. ${step.currentMap.name} → ${step.direction} → ${step.nextMap.name}`
+    ).join('\n')
+
+    navigator.clipboard.writeText(pathText).then(() => {
+      // Could add a toast notification here
+      console.log('Path copied to clipboard!')
+    })
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex flex-col">
       <Navbar />
       <div className="flex-1 p-4 md:p-8">
-        <div className="mx-auto max-w-2xl space-y-8">
+        <div className="mx-auto max-w-4xl space-y-8">
 
+          {/* Map Selection Section */}
           <div className="space-y-6">
-            <div className="grid grid-cols-[1fr,auto,1fr] items-center gap-4">
-            <div className="space-y-2">
-              <MapSearch
-                label="Starting Map"
-                onSelect={(map) => setSourceMapId(map.id)}
-                placeholder="Where are you now?"
-              />
-              {sourceMap && (
-                <div className="relative z-10 mt-2 rounded-lg bg-card p-3 text-sm shadow-md transition-shadow hover:shadow-lg border">
-                  <div className="flex items-center gap-3">
-                    <img 
-                      src={getMapIconUrl(sourceMap.id)}
-                      alt=""
-                      className="w-6 h-6 object-contain"
-                    />
-                    <div>
-                      <div className="font-medium">{sourceMap.name}</div>
-                      <div className="text-xs text-muted-foreground">{sourceMap.streetName}</div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <button
-              onClick={handleSwapMaps}
-              disabled={!sourceMap && !targetMap}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
-              title="Swap maps"
-            >
-              ⇄
-            </button>
-
-            <div className="space-y-2">
-              <MapSearch
-                label="Target Map"
-                onSelect={(map) => setTargetMapId(map.id)}
-                placeholder="Where do you want to go?"
-              />
-              {targetMap && (
-                <div className="relative z-10 mt-2 rounded-lg bg-card p-3 text-sm shadow-md transition-shadow hover:shadow-lg border">
-                  <div className="flex items-center gap-3">
-                    <img 
-                      src={getMapIconUrl(targetMap.id)}
-                      alt=""
-                      className="w-6 h-6 object-contain"
-                    />
-                    <div>
-                      <div className="font-medium">{targetMap.name}</div>
-                      <div className="text-xs text-muted-foreground">{targetMap.streetName}</div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <button
-            className="inline-flex h-10 w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-            onClick={handleFindPath}
-            disabled={!sourceMap || !targetMap || isLoading}
-          >
-            {isLoading ? 'Finding path...' : 'Find Path'}
-          </button>
-        </div>
-
-        {error && (
-          <div className="rounded-md bg-destructive/15 p-4 text-sm text-destructive">
-            {error}
-          </div>
-        )}
-
-        {path && (
-          <div className="space-y-4 rounded-lg border p-4">
-            <h2 className="text-lg font-semibold">Navigation Steps</h2>
-            <div className="space-y-4">
-              {path.map((step, index) => (
-                <div
-                  key={index}
-                  className="overflow-hidden rounded-md border bg-card"
-                >
-                  <div className="space-y-2 p-4">
+            <div className="grid grid-cols-1 md:grid-cols-[1fr,auto,1fr] items-start gap-4 md:gap-6">
+              {/* Source Map */}
+              <div className="space-y-3">
+                <MapSearch
+                  label="Starting Map"
+                  onSelect={(map) => setSourceMapId(map.id)}
+                  placeholder="Where are you now?"
+                />
+                {sourceMap && (
+                  <div className="rounded-lg bg-gradient-to-br from-card to-card/50 p-4 shadow-lg border-2 border-primary/20 hover:border-primary/40 transition-all">
                     <div className="flex items-center gap-3">
-                      <img 
-                        src={getMapIconUrl(step.currentMap.id)}
-                        alt=""
-                        className="w-8 h-8 object-contain"
-                      />
-                      <div>
-                        <h3 className="font-medium">{step.currentMap.name}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {step.currentMap.streetName}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 mt-3">
-                      <span className="font-medium text-primary">
-                        {step.direction}
-                      </span>
-                      <span className="text-sm text-muted-foreground">→</span>
-                      <div className="flex items-center gap-2">
-                        <img 
-                          src={getMapIconUrl(step.nextMap.id)}
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <img
+                          src={getMapIconUrl(sourceMap.id)}
                           alt=""
                           className="w-6 h-6 object-contain"
                         />
-                        <span className="text-sm">{step.nextMap.name}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-foreground truncate">{sourceMap.name}</div>
+                        <div className="text-xs text-muted-foreground truncate">{sourceMap.streetName}</div>
                       </div>
                     </div>
                   </div>
-                  <div className="relative h-48 w-full border-t flex items-center justify-center">
-                    <MapModal
-                      imageUrl={getMapImageUrl(step.currentMap.id)}
-                      mapName={step.currentMap.name}
-                      className="max-h-48 w-full"
-                    />
+                )}
+              </div>
+
+              {/* Swap Button */}
+              <button
+                onClick={handleSwapMaps}
+                disabled={!sourceMap && !targetMap}
+                className="inline-flex h-12 w-12 md:h-14 md:w-14 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 mt-8 md:mt-6 mx-auto"
+                title="Swap maps"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                </svg>
+              </button>
+
+              {/* Target Map */}
+              <div className="space-y-3">
+                <MapSearch
+                  label="Target Map"
+                  onSelect={(map) => setTargetMapId(map.id)}
+                  placeholder="Where do you want to go?"
+                />
+                {targetMap && (
+                  <div className="rounded-lg bg-gradient-to-br from-card to-card/50 p-4 shadow-lg border-2 border-secondary/20 hover:border-secondary/40 transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center flex-shrink-0">
+                        <img
+                          src={getMapIconUrl(targetMap.id)}
+                          alt=""
+                          className="w-6 h-6 object-contain"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-foreground truncate">{targetMap.name}</div>
+                        <div className="text-xs text-muted-foreground truncate">{targetMap.streetName}</div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )}
+              </div>
             </div>
+
+            {/* Find Path Button */}
+            <button
+              className="inline-flex h-12 w-full items-center justify-center rounded-lg bg-gradient-to-r from-primary to-primary/80 px-6 py-3 text-base font-semibold text-primary-foreground shadow-lg transition-all hover:shadow-xl hover:from-primary/90 hover:to-primary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 transform hover:scale-[1.02] active:scale-[0.98]"
+              onClick={handleFindPath}
+              disabled={!sourceMap || !targetMap || isLoading}
+            >
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Finding path...
+                </span>
+              ) : 'Find Path'}
+            </button>
           </div>
-        )}
+
+          {/* Error Message */}
+          {error && (
+            <div className="rounded-lg bg-destructive/10 border-2 border-destructive/30 p-4 text-sm text-destructive flex items-start gap-3">
+              <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+              <div>
+                <div className="font-semibold mb-1">Path not found</div>
+                <div>{error}</div>
+              </div>
+            </div>
+          )}
+
+          {/* Loading State */}
+          {isLoading && <LoadingSpinner />}
+
+          {/* Empty State */}
+          {!sourceMap && !targetMap && !path && !isLoading && <EmptyState />}
+
+          {/* Path Results */}
+          {path && sourceMap && targetMap && (
+            <div className="space-y-6">
+              <PathSummary
+                path={path}
+                sourceMap={sourceMap}
+                targetMap={targetMap}
+                onClear={handleClearPath}
+                onCopyPath={handleCopyPath}
+              />
+
+              <div className="space-y-4">
+                <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                  <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                  </svg>
+                  Navigation Steps
+                </h2>
+
+                <div className="space-y-4">
+                  {path.map((step, index) => (
+                    <div
+                      key={index}
+                      className="overflow-hidden rounded-lg border-2 border-border bg-card shadow-md hover:shadow-lg transition-shadow"
+                    >
+                      <div className="p-5">
+                        <div className="flex items-start gap-4">
+                          {/* Step Number */}
+                          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground flex items-center justify-center font-bold text-lg shadow-md">
+                            {index + 1}
+                          </div>
+
+                          {/* Step Content */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-3 mb-3">
+                              <img
+                                src={getMapIconUrl(step.currentMap.id)}
+                                alt=""
+                                className="w-8 h-8 object-contain"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-semibold text-foreground truncate">{step.currentMap.name}</h3>
+                                <p className="text-sm text-muted-foreground truncate">
+                                  {step.currentMap.streetName}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Direction Arrow */}
+                            <div className="flex items-center gap-3 p-3 rounded-md bg-primary/5 border border-primary/20">
+                              <svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                              </svg>
+                              <span className="font-semibold text-primary text-sm">
+                                {step.direction}
+                              </span>
+                              <span className="text-muted-foreground">→</span>
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                                <img
+                                  src={getMapIconUrl(step.nextMap.id)}
+                                  alt=""
+                                  className="w-6 h-6 object-contain flex-shrink-0"
+                                />
+                                <span className="text-sm font-medium truncate">{step.nextMap.name}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Map Preview */}
+                      <div className="relative h-56 w-full border-t-2 border-border flex items-center justify-center bg-muted/20">
+                        <MapModal
+                          imageUrl={getMapImageUrl(step.currentMap.id)}
+                          mapName={step.currentMap.name}
+                          className="max-h-56 w-full"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
         </div>
       </div>
