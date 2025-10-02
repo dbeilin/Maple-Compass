@@ -124,8 +124,8 @@ function PathfinderApp() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex flex-col">
       <Navbar />
-      <div className="flex-1 p-4 md:p-8">
-        <div className="mx-auto max-w-4xl space-y-8">
+      <div className="flex-1 p-4 md:p-6">
+        <div className="mx-auto max-w-6xl space-y-6">
 
           {/* Map Selection Section */}
           <div className="space-y-6">
@@ -164,7 +164,7 @@ function PathfinderApp() {
                 title="Swap maps"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                 </svg>
               </button>
 
