@@ -20,7 +20,7 @@ def has_html_entities(text: str) -> bool:
     """Check if text contains HTML entities like &lt; &gt; &amp;"""
     return bool(re.search(r'&[a-z]+;', text))
 
-def should_filter_out(map_data: dict) -> bool:
+def should_filter_out(map_data: dict, is_isolated: bool = False) -> bool:
     """Return True if this map should be filtered out."""
     name = map_data.get('name', '')
     street_name = map_data.get('streetName', '')
@@ -37,11 +37,19 @@ def should_filter_out(map_data: dict) -> bool:
     if has_html_entities(name) or has_html_entities(street_name):
         return True
 
+    # Filter out names with quotes inside them (like \"Perion\" Lobby)
+    if '"' in name or '"' in street_name:
+        return True
+
     # Filter out quoted names (like "Henesys")
     if name.startswith('"') and name.endswith('"'):
         return True
 
     if street_name.startswith('"') and street_name.endswith('"'):
+        return True
+
+    # Filter out isolated maps (no connections and not referenced by others)
+    if is_isolated:
         return True
 
     return False
@@ -62,16 +70,33 @@ def main():
     original_count = len(map_graph)
     print(f"Original map count: {original_count}")
 
+    # First pass: find all referenced maps
+    print("Finding isolated maps...")
+    referenced_maps = set()
+    for map_id, map_data in map_graph.items():
+        for conn in map_data.get('connections', []):
+            referenced_maps.add(str(conn['toMapId']))
+
+    # Identify isolated maps (no connections AND not referenced by others)
+    isolated_maps = set()
+    for map_id, map_data in map_graph.items():
+        if not map_data.get('connections') and map_id not in referenced_maps:
+            isolated_maps.add(map_id)
+
+    print(f"Found {len(isolated_maps)} isolated maps (no connections and not referenced)")
+
     # Filter out problematic maps
     filtered_graph = {}
     filtered_out = []
 
     for map_id, map_data in map_graph.items():
-        if should_filter_out(map_data):
+        is_isolated = map_id in isolated_maps
+        if should_filter_out(map_data, is_isolated):
             filtered_out.append({
                 'id': map_id,
                 'name': map_data.get('name', ''),
-                'streetName': map_data.get('streetName', '')
+                'streetName': map_data.get('streetName', ''),
+                'reason': 'isolated' if is_isolated else 'other'
             })
         else:
             filtered_graph[map_id] = map_data
@@ -85,9 +110,18 @@ def main():
     # Show sample of removed maps
     if filtered_out:
         print("\nSample of removed maps:")
-        print("=" * 70)
-        for item in filtered_out[:10]:
-            print(f"  ID: {item['id']:<12} Name: {item['name']:<30} Street: {item['streetName']}")
+        print("=" * 80)
+        isolated_removed = [x for x in filtered_out if x['reason'] == 'isolated']
+        other_removed = [x for x in filtered_out if x['reason'] == 'other']
+
+        print(f"Isolated maps (no connections): {len(isolated_removed)}")
+        for item in isolated_removed[:5]:
+            print(f"  ID: {item['id']:<12} Name: {item['name']:<35} Street: {item['streetName']}")
+
+        if other_removed:
+            print(f"\nOther problematic maps: {len(other_removed)}")
+            for item in other_removed[:5]:
+                print(f"  ID: {item['id']:<12} Name: {item['name']:<35} Street: {item['streetName']}")
 
     # Save backup of original
     print(f"\nSaving backup to {backup_file}...")
