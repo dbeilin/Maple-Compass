@@ -28,57 +28,52 @@ export function MapSearch({ maps, value, onSelect, placeholder = 'Type to search
   const [isEditing, setIsEditing] = React.useState(false)
   const inputRef = React.useRef<HTMLInputElement>(null)
 
-  // Debounce search query for better performance
   const debouncedSearchQuery = useDebounce(searchQuery, 150)
 
-  // Initialize Fuse.js for fuzzy search
   const fuse = React.useMemo(() => {
     return new Fuse(maps, {
       keys: [
-        { name: 'name', weight: 2 }, // Prioritize map name
+        { name: 'name', weight: 2 },
         { name: 'streetName', weight: 1 },
       ],
-      threshold: 0.3, // Balance between strict and fuzzy
+      threshold: 0.3,
       ignoreLocation: true,
       useExtendedSearch: false,
+      minMatchCharLength: 2,
+      findAllMatches: false,
+      distance: 100,
+      shouldSort: true,
     })
   }, [maps])
 
-  // Filter maps using Fuse.js with debounced query
   const filteredMaps = React.useMemo(() => {
-    if (!debouncedSearchQuery || debouncedSearchQuery.trim() === '') {
-      return maps.slice(0, 50) // Show first 50 maps when no search
+    if (!debouncedSearchQuery || debouncedSearchQuery.trim().length < 2) {
+      return maps.slice(0, 50)
     }
 
-    const results = fuse.search(debouncedSearchQuery)
-    return results.slice(0, 50).map((result) => result.item) // Limit to top 50 results
-  }, [debouncedSearchQuery, fuse, maps])
+    const results = fuse.search(debouncedSearchQuery, { limit: 50 })
+    return results.map((result) => result.item)
+  }, [debouncedSearchQuery, fuse])
 
-  // Display value in input
   const displayValue = React.useMemo(() => {
-    // If editing or searching, show the search query
     if (isEditing || searchQuery) {
       return searchQuery
     }
-    // If a value is selected and not editing, show just the map name (no street name)
     if (value) {
       return value.name
     }
     return ''
   }, [value, searchQuery, isEditing])
 
-  // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value
     setSearchQuery(query)
     setIsEditing(true)
 
-    // Clear selection if user is editing
     if (value) {
       onSelect(null)
     }
 
-    // Only open dropdown if there's text
     if (query.trim()) {
       setOpen(true)
     } else {
@@ -86,20 +81,16 @@ export function MapSearch({ maps, value, onSelect, placeholder = 'Type to search
     }
   }
 
-  // Handle input focus
   const handleInputFocus = () => {
     setIsEditing(true)
-    // If there's a selected value, populate search with map name for editing
     if (value && !searchQuery) {
       setSearchQuery(value.name)
     }
-    // Open dropdown if there's text
     if (searchQuery.trim() || value) {
       setOpen(true)
     }
   }
 
-  // Handle clear
   const handleClear = () => {
     setSearchQuery('')
     onSelect(null)
@@ -108,7 +99,6 @@ export function MapSearch({ maps, value, onSelect, placeholder = 'Type to search
     inputRef.current?.focus()
   }
 
-  // Handle map selection
   const handleSelect = (map: MapInfo) => {
     onSelect(map)
     setSearchQuery('')
@@ -116,9 +106,10 @@ export function MapSearch({ maps, value, onSelect, placeholder = 'Type to search
     setOpen(false)
   }
 
-  // Close dropdown when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      if (!open) return
+
       if (inputRef.current && !inputRef.current.contains(event.target as Node)) {
         const dropdown = document.getElementById('map-search-dropdown')
         if (dropdown && !dropdown.contains(event.target as Node)) {
@@ -128,10 +119,7 @@ export function MapSearch({ maps, value, onSelect, placeholder = 'Type to search
       }
     }
 
-    if (open) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-
+    document.addEventListener('mousedown', handleClickOutside)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
