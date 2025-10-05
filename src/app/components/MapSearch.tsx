@@ -13,6 +13,7 @@ import {
   CommandList,
 } from '@/components/ui/command'
 import { MapInfo, getMapIconUrl } from '../types/map'
+import { useDebounce } from '../hooks/useDebounce'
 
 interface MapSearchProps {
   maps: MapInfo[]
@@ -24,47 +25,55 @@ interface MapSearchProps {
 export function MapSearch({ maps, value, onSelect, placeholder = 'Type to search maps...' }: MapSearchProps) {
   const [open, setOpen] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState('')
+  const [isEditing, setIsEditing] = React.useState(false)
   const inputRef = React.useRef<HTMLInputElement>(null)
 
-  // Initialize Fuse.js for fuzzy search
+  const debouncedSearchQuery = useDebounce(searchQuery, 150)
+
   const fuse = React.useMemo(() => {
     return new Fuse(maps, {
       keys: [
-        { name: 'name', weight: 2 }, // Prioritize map name
+        { name: 'name', weight: 2 },
         { name: 'streetName', weight: 1 },
       ],
-      threshold: 0.3, // Balance between strict and fuzzy
+      threshold: 0.3,
       ignoreLocation: true,
       useExtendedSearch: false,
+      minMatchCharLength: 2,
+      findAllMatches: false,
+      distance: 100,
+      shouldSort: true,
     })
   }, [maps])
 
-  // Filter maps using Fuse.js
   const filteredMaps = React.useMemo(() => {
-    if (!searchQuery || searchQuery.trim() === '') {
-      return maps.slice(0, 50) // Show first 50 maps when no search
+    if (!debouncedSearchQuery || debouncedSearchQuery.trim().length < 2) {
+      return maps.slice(0, 50)
     }
 
-    const results = fuse.search(searchQuery)
-    return results.slice(0, 50).map((result) => result.item) // Limit to top 50 results
-  }, [searchQuery, fuse, maps])
+    const results = fuse.search(debouncedSearchQuery, { limit: 50 })
+    return results.map((result) => result.item)
+  }, [debouncedSearchQuery, fuse])
 
-  // Display value in input
   const displayValue = React.useMemo(() => {
-    if (searchQuery) {
+    if (isEditing || searchQuery) {
       return searchQuery
     }
     if (value) {
-      return `${value.name}${value.streetName ? ` (${value.streetName})` : ''}`
+      return value.name
     }
     return ''
-  }, [value, searchQuery])
+  }, [value, searchQuery, isEditing])
 
-  // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value
     setSearchQuery(query)
-    // Only open dropdown if there's text
+    setIsEditing(true)
+
+    if (value) {
+      onSelect(null)
+    }
+
     if (query.trim()) {
       setOpen(true)
     } else {
@@ -72,44 +81,45 @@ export function MapSearch({ maps, value, onSelect, placeholder = 'Type to search
     }
   }
 
-  // Handle input focus
   const handleInputFocus = () => {
-    // Only open dropdown on focus if there's text
-    if (searchQuery.trim()) {
+    setIsEditing(true)
+    if (value && !searchQuery) {
+      setSearchQuery(value.name)
+    }
+    if (searchQuery.trim() || value) {
       setOpen(true)
     }
   }
 
-  // Handle clear
   const handleClear = () => {
     setSearchQuery('')
     onSelect(null)
+    setIsEditing(false)
     setOpen(false)
     inputRef.current?.focus()
   }
 
-  // Handle map selection
   const handleSelect = (map: MapInfo) => {
     onSelect(map)
     setSearchQuery('')
+    setIsEditing(false)
     setOpen(false)
   }
 
-  // Close dropdown when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      if (!open) return
+
       if (inputRef.current && !inputRef.current.contains(event.target as Node)) {
         const dropdown = document.getElementById('map-search-dropdown')
         if (dropdown && !dropdown.contains(event.target as Node)) {
           setOpen(false)
+          setIsEditing(false)
         }
       }
     }
 
-    if (open) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-
+    document.addEventListener('mousedown', handleClickOutside)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
