@@ -15,6 +15,15 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Maple Compass - MapleStory Pathfinder",
   description: "Find the shortest path between MapleStory maps using BFS pathfinding algorithm. Navigate through portals with step-by-step directions.",
+  icons: {
+    icon: [
+      { url: "/assets/logo.png", sizes: "any" },
+      { url: "/assets/logo.png", sizes: "32x32", type: "image/png" },
+      { url: "/assets/logo.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: "/assets/logo.png",
+    shortcut: "/assets/logo.png",
+  },
 };
 
 export default function RootLayout({

@@ -147,9 +147,9 @@ function HomeContent() {
       <main className="container mx-auto px-4 py-8 flex-1">
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
-            <CardTitle>Pathfinding</CardTitle>
+            <CardTitle>Path Finding</CardTitle>
             <CardDescription>
-              Select your starting map and destination to find the shortest route
+              Select your starting map and destination map.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
