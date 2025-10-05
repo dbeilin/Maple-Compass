@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { MapSearch } from './components/MapSearch'
 import { PathResults } from './components/PathResults'
@@ -12,7 +12,7 @@ import { initializePathfinding } from './lib/pathfinding'
 import { usePathfindingWorker } from './hooks/usePathfindingWorker'
 import { Loader2, ArrowLeftRight, X } from 'lucide-react'
 
-export default function Home() {
+function HomeContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [maps, setMaps] = useState<MapInfo[]>([])
@@ -247,5 +247,20 @@ export default function Home() {
         </div>
       </footer>
     </div>
+  )
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Loading...</span>
+        </div>
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   )
 }
