@@ -23,7 +23,7 @@ export async function initializePathfinding() {
   return mapGraph
 }
 
-function getDirection(fromPortal: { x: number; y: number }, toPortal: { x: number; y: number }): string {
+function getDirection(fromPortal: { x: number; y: number }, toPortal: { x: number; y: number }): 'left' | 'right' | 'up' | 'down' | '' {
   const dx = toPortal.x - fromPortal.x
   const dy = toPortal.y - fromPortal.y
 
