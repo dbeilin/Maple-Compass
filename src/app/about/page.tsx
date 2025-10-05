@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Navbar } from '../components/Navbar'
 import { Footer } from '../components/Footer'
 import Link from 'next/link'
@@ -24,7 +24,7 @@ export default function AboutPage() {
               <div>
                 <h3 className="font-semibold mb-2">What is Maple Compass?</h3>
                 <p className="text-muted-foreground">
-                  It's just a simple tool to help you find the shortest path between two maps in MapleStory.
+                  It&apos;s just a simple tool to help you find the shortest path between two maps in MapleStory.
                 </p>
               </div>
 
