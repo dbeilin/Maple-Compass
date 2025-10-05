@@ -16,8 +16,9 @@ interface PathTimelineProps {
 export function PathTimeline({ steps, selectedIndex, onStepClick }: PathTimelineProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
-    containScroll: 'trimSnaps',
-    dragFree: true,
+    dragFree: false,
+    duration: 20,
+    friction: 0.25,
   }, [WheelGesturesPlugin({ forceWheelAxis: 'y' })])
 
   // Auto-scroll to selected step
