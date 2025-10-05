@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { MapSearch } from './components/MapSearch'
 import { PathResults } from './components/PathResults'
 import { Navbar } from './components/Navbar'
+import { Footer } from './components/Footer'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { MapInfo, PathStep, MapGraph } from './types/map'
@@ -231,21 +232,7 @@ function HomeContent() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t py-6 mt-8">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>
-            Powered by BFS pathfinding algorithm • Data from{' '}
-            <a
-              href="https://royals-library.netlify.app"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-foreground"
-            >
-              Royals Library
-            </a>
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

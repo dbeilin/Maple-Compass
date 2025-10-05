@@ -29,7 +29,7 @@ export function Navbar() {
           {/* Right Side - Navigation Links */}
           <nav className="flex items-center gap-6">
             <Link
-              href="https://github.com/yourusername/maple-compass"
+              href="https://github.com/dbeilin/maple-compass"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
