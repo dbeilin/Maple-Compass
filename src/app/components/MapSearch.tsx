@@ -151,6 +151,7 @@ export function MapSearch({ maps, value, onSelect, placeholder = 'Type to search
                     value={map.id.toString()}
                     onSelect={() => handleSelect(map)}
                   >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={getMapIconUrl(map.id)}
                       alt=""

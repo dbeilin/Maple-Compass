@@ -131,6 +131,7 @@ export function PathResults({ path }: PathResultsProps) {
 
                       {/* Map transition info */}
                       <div className="flex items-center gap-2 flex-wrap">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={getMapIconUrl(step.currentMap.id)}
                           alt=""
@@ -143,6 +144,7 @@ export function PathResults({ path }: PathResultsProps) {
                           {step.currentMap.name || `Map ${step.currentMap.id}`}
                         </span>
                         <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={getMapIconUrl(step.nextMap.id)}
                           alt=""
@@ -172,6 +174,7 @@ export function PathResults({ path }: PathResultsProps) {
                       {/* Map Image with Zoom - Variable height */}
                       <div className="min-h-[300px] max-h-[600px] bg-muted/20 rounded border flex items-center justify-center overflow-hidden">
                         <Zoom>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={getMapImageUrl(step.currentMap.id)}
                             alt={step.currentMap.name || `Map ${step.currentMap.id}`}
@@ -222,6 +225,7 @@ export function PathResults({ path }: PathResultsProps) {
 
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1 flex-wrap">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={getMapIconUrl(path[path.length - 1].nextMap.id)}
                   alt=""
@@ -243,6 +247,7 @@ export function PathResults({ path }: PathResultsProps) {
               {/* Arrival Map Image with Zoom */}
               <div className="mt-3 min-h-[300px] max-h-[600px] bg-muted/20 rounded border flex items-center justify-center overflow-hidden">
                 <Zoom>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={getMapImageUrl(path[path.length - 1].nextMap.id)}
                     alt={path[path.length - 1].nextMap.name || `Map ${path[path.length - 1].nextMap.id}`}

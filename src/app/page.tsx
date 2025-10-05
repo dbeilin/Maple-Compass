@@ -68,7 +68,7 @@ export default function Home() {
     }
 
     init()
-  }, [])
+  }, [searchParams])
 
   // Update URL with current map selections
   const updateUrl = (start: MapInfo | null, end: MapInfo | null) => {
